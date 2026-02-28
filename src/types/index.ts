@@ -1,16 +1,30 @@
-export type UserRole = 'owner' | 'employee';
-
 export interface UserProfile {
   id: string;
+  user_id: string;
   email: string;
   full_name: string;
-  role: UserRole;
-  avatar_url?: string;
-  permissions: {
-    can_manage_tasks: boolean;
-    can_manage_employees: boolean;
-    can_view_reports: boolean;
-  };
+  role: 'owner' | 'employee';
+  company_name?: string;
+  owner_id?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  permissions?: Permission[];
+}
+
+export interface Permission {
+  id: string;
+  name: string;
+  label: string;
+  description?: string;
+}
+
+export interface EmployeePermission {
+  id: string;
+  profile_id: string;
+  permission_id: string;
+  granted_by?: string;
+  created_at: string;
 }
 
 export interface Task {
@@ -34,13 +48,4 @@ export interface ActivityLog {
   action: string;
   timestamp: string;
   details?: string;
-}
-
-export interface MetricCard {
-  title: string;
-  value: string | number;
-  change?: string;
-  changeType?: 'positive' | 'negative' | 'neutral';
-  icon: React.ReactNode;
-  gradient: 'primary' | 'success' | 'warning';
 }
