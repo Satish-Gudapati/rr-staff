@@ -49,7 +49,7 @@ serve(async (req) => {
     const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
 
     if (action === 'create') {
-      const { email, password, full_name, permissions } = payload;
+      const { email, password, full_name, permissions, role_id, salary, incentives } = payload;
 
       // Create auth user
       const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
@@ -72,10 +72,12 @@ serve(async (req) => {
         email,
         role: 'employee',
         owner_id: callerProfile.id,
+        role_id: role_id || null,
+        salary: parseFloat(salary) || 0,
+        incentives: parseFloat(incentives) || 0,
       }).select().single();
 
       if (profileError) {
-        // Cleanup: delete the auth user if profile creation fails
         await supabaseAdmin.auth.admin.deleteUser(newUser.user.id);
         return new Response(JSON.stringify({ error: profileError.message }), {
           status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -98,9 +100,8 @@ serve(async (req) => {
     }
 
     if (action === 'update') {
-      const { profile_id, full_name, email, is_active, permissions } = payload;
+      const { profile_id, full_name, email, is_active, permissions, role_id, salary, incentives } = payload;
 
-      // Verify employee belongs to this owner
       const { data: empProfile } = await supabaseAdmin.from('profiles').select('*').eq('id', profile_id).eq('owner_id', callerProfile.id).single();
       if (!empProfile) {
         return new Response(JSON.stringify({ error: 'Employee not found' }), {
@@ -108,22 +109,22 @@ serve(async (req) => {
         });
       }
 
-      // Update profile
       const updates: Record<string, unknown> = {};
       if (full_name) updates.full_name = full_name;
       if (email) updates.email = email;
       if (typeof is_active === 'boolean') updates.is_active = is_active;
+      if (role_id !== undefined) updates.role_id = role_id || null;
+      if (salary !== undefined) updates.salary = parseFloat(salary) || 0;
+      if (incentives !== undefined) updates.incentives = parseFloat(incentives) || 0;
 
       if (Object.keys(updates).length > 0) {
         await supabaseAdmin.from('profiles').update(updates).eq('id', profile_id);
       }
 
-      // Update email in auth if changed
       if (email && email !== empProfile.email) {
         await supabaseAdmin.auth.admin.updateUserById(empProfile.user_id, { email });
       }
 
-      // Update permissions: delete old, insert new
       if (permissions !== undefined) {
         await supabaseAdmin.from('employee_permissions').delete().eq('profile_id', profile_id);
         if (permissions.length > 0) {
