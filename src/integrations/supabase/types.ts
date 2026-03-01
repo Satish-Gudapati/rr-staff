@@ -91,9 +91,12 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          incentives: number | null
           is_active: boolean
           owner_id: string | null
           role: string
+          role_id: string | null
+          salary: number | null
           updated_at: string
           user_id: string
         }
@@ -103,9 +106,12 @@ export type Database = {
           email: string
           full_name: string
           id?: string
+          incentives?: number | null
           is_active?: boolean
           owner_id?: string | null
           role?: string
+          role_id?: string | null
+          salary?: number | null
           updated_at?: string
           user_id: string
         }
@@ -115,15 +121,96 @@ export type Database = {
           email?: string
           full_name?: string
           id?: string
+          incentives?: number | null
           is_active?: boolean
           owner_id?: string | null
           role?: string
+          role_id?: string | null
+          salary?: number | null
           updated_at?: string
           user_id?: string
         }
         Relationships: [
           {
             foreignKeyName: "profiles_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      role_permissions: {
+        Row: {
+          created_at: string
+          id: string
+          permission_id: string
+          role_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          permission_id: string
+          role_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          permission_id?: string
+          role_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_permission_id_fkey"
+            columns: ["permission_id"]
+            isOneToOne: false
+            referencedRelation: "permissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_permissions_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      roles: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "roles_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"

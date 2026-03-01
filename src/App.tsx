@@ -11,6 +11,7 @@ import EmployeeDashboard from "./pages/EmployeeDashboard";
 import Tasks from "./pages/Tasks";
 import TaskDetail from "./pages/TaskDetail";
 import Employees from "./pages/Employees";
+import Roles from "./pages/Roles";
 import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
 
@@ -31,6 +32,7 @@ const App = () => (
               <Route path="/tasks" element={<Tasks />} />
               <Route path="/tasks/:id" element={<TaskDetail />} />
               <Route path="/employees" element={<Employees />} />
+              <Route path="/roles" element={<Roles />} />
               <Route path="/reports" element={<Reports />} />
             </Route>
             <Route path="*" element={<NotFound />} />

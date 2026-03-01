@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   ClipboardList,
   Users,
+  Tag,
   BarChart3,
   LogOut,
   ChevronLeft,
@@ -33,7 +34,10 @@ const AppSidebar = () => {
       ? [{ label: 'Tasks', icon: <ClipboardList size={20} />, path: '/tasks' }]
       : []),
     ...(hasPermission('can_manage_employees')
-      ? [{ label: 'Employees', icon: <Users size={20} />, path: '/employees' }]
+      ? [
+          { label: 'Employees', icon: <Users size={20} />, path: '/employees' },
+          { label: 'Roles', icon: <Tag size={20} />, path: '/roles' },
+        ]
       : []),
     ...(hasPermission('can_view_reports')
       ? [{ label: 'Reports', icon: <BarChart3 size={20} />, path: '/reports' }]

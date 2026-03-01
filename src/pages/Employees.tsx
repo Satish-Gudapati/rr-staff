@@ -12,6 +12,9 @@ interface EmployeeFormData {
   email: string;
   password: string;
   permissions: string[];
+  role_id: string;
+  salary: string;
+  incentives: string;
 }
 
 const Employees = () => {
@@ -20,7 +23,7 @@ const Employees = () => {
   const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<EmployeeFormData>({ full_name: '', email: '', password: '', permissions: [] });
+  const [formData, setFormData] = useState<EmployeeFormData>({ full_name: '', email: '', password: '', permissions: [], role_id: '', salary: '0', incentives: '0' });
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   // Fetch employees
@@ -32,6 +35,16 @@ const Employees = () => {
         .select('*')
         .eq('role', 'employee')
         .eq('owner_id', user?.id || '');
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
+  // Fetch roles
+  const { data: roles = [] } = useQuery({
+    queryKey: ['roles'],
+    queryFn: async () => {
+      const { data } = await supabase.from('roles').select('*');
       return data || [];
     },
     enabled: !!user,
@@ -131,12 +144,12 @@ const Employees = () => {
   const resetForm = () => {
     setShowForm(false);
     setEditingId(null);
-    setFormData({ full_name: '', email: '', password: '', permissions: [] });
+    setFormData({ full_name: '', email: '', password: '', permissions: [], role_id: '', salary: '0', incentives: '0' });
   };
 
   const handleEdit = (emp: any) => {
     const empPerms = empPermissions.filter((ep: any) => ep.profile_id === emp.id).map((ep: any) => ep.permission_id);
-    setFormData({ full_name: emp.full_name, email: emp.email, password: '', permissions: empPerms });
+    setFormData({ full_name: emp.full_name, email: emp.email, password: '', permissions: empPerms, role_id: emp.role_id || '', salary: String(emp.salary || 0), incentives: String(emp.incentives || 0) });
     setEditingId(emp.id);
     setShowForm(true);
   };
@@ -146,7 +159,7 @@ const Employees = () => {
     if (editingId) {
       updateMutation.mutate({
         profileId: editingId,
-        data: { full_name: formData.full_name, email: formData.email, permissions: formData.permissions },
+        data: { full_name: formData.full_name, email: formData.email, permissions: formData.permissions, role_id: formData.role_id || '', salary: formData.salary, incentives: formData.incentives },
       });
     } else {
       if (!formData.password || formData.password.length < 6) {
@@ -230,6 +243,34 @@ const Employees = () => {
                   </div>
                 )}
 
+                {/* Role Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">Role</label>
+                  <select value={formData.role_id} onChange={(e) => setFormData(prev => ({ ...prev, role_id: e.target.value }))}
+                    className="w-full px-4 py-2.5 rounded-xl bg-muted border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                    <option value="">No role assigned</option>
+                    {roles.map((role: any) => (
+                      <option key={role.id} value={role.id}>{role.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Salary & Incentives */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1.5">Salary (₹)</label>
+                    <input type="number" value={formData.salary} onChange={(e) => setFormData(prev => ({ ...prev, salary: e.target.value }))}
+                      placeholder="0" min="0" step="100"
+                      className="w-full px-4 py-2.5 rounded-xl bg-muted border border-border text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1.5">Incentives (₹)</label>
+                    <input type="number" value={formData.incentives} onChange={(e) => setFormData(prev => ({ ...prev, incentives: e.target.value }))}
+                      placeholder="0" min="0" step="100"
+                      className="w-full px-4 py-2.5 rounded-xl bg-muted border border-border text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+                  </div>
+                </div>
+
                 {/* Permissions */}
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-3 flex items-center gap-2">
@@ -291,9 +332,23 @@ const Employees = () => {
                   <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-semibold shrink-0">
                     {emp.full_name.split(' ').map((n: string) => n[0]).join('')}
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-sm font-semibold text-foreground">{emp.full_name}</h3>
+                   <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-semibold text-foreground">{emp.full_name}</h3>
+                      {emp.role_id && roles.find((r: any) => r.id === emp.role_id) && (
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-accent text-accent-foreground">
+                          {roles.find((r: any) => r.id === emp.role_id)?.name}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground">{emp.email}</p>
+                    <div className="flex items-center gap-3 mt-1">
+                      {(emp.salary > 0 || emp.incentives > 0) && (
+                        <span className="text-xs text-muted-foreground">
+                          ₹{Number(emp.salary || 0).toLocaleString()}{emp.incentives > 0 ? ` + ₹${Number(emp.incentives).toLocaleString()} incentives` : ''}
+                        </span>
+                      )}
+                    </div>
                     {permNames.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-1.5">
                         {permNames.map((name: string) => (

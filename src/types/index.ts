@@ -7,9 +7,21 @@ export interface UserProfile {
   company_name?: string;
   owner_id?: string;
   is_active: boolean;
+  role_id?: string;
+  salary?: number;
+  incentives?: number;
   created_at: string;
   updated_at: string;
   permissions?: Permission[];
+}
+
+export interface Role {
+  id: string;
+  owner_id: string;
+  name: string;
+  description?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Permission {
