@@ -41,16 +41,33 @@ export interface EmployeePermission {
 
 export interface Task {
   id: string;
+  owner_id: string;
+  created_by: string;
+  assigned_to: string;
   title: string;
   description: string;
-  status: 'pending' | 'in_progress' | 'completed';
+  service_type: string;
   priority: 'low' | 'medium' | 'high';
-  assigned_to: string;
-  assigned_to_name: string;
-  created_by: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  total_amount: number;
+  payment_status: 'unpaid' | 'partial' | 'paid';
+  due_date?: string;
+  completed_at?: string;
   created_at: string;
   updated_at: string;
-  due_date?: string;
+  // joined fields
+  assigned_to_profile?: UserProfile;
+  created_by_profile?: UserProfile;
+}
+
+export interface TaskActivity {
+  id: string;
+  task_id: string;
+  user_id: string;
+  action: string;
+  details?: string;
+  created_at: string;
+  user_profile?: UserProfile;
 }
 
 export interface ActivityLog {
