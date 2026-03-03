@@ -60,6 +60,61 @@ export type Database = {
           },
         ]
       }
+      incentives: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string
+          employee_id: string
+          id: string
+          incentive_date: string
+          owner_id: string
+          reason: string | null
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          created_by: string
+          employee_id: string
+          id?: string
+          incentive_date?: string
+          owner_id: string
+          reason?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string
+          employee_id?: string
+          id?: string
+          incentive_date?: string
+          owner_id?: string
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incentives_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incentives_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incentives_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       permissions: {
         Row: {
           created_at: string
@@ -218,6 +273,57 @@ export type Database = {
           },
         ]
       }
+      sales: {
+        Row: {
+          amount: number
+          created_at: string
+          customer_name: string | null
+          description: string | null
+          entered_by: string
+          id: string
+          owner_id: string
+          payment_mode: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          customer_name?: string | null
+          description?: string | null
+          entered_by: string
+          id?: string
+          owner_id: string
+          payment_mode?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          customer_name?: string | null
+          description?: string | null
+          entered_by?: string
+          id?: string
+          owner_id?: string
+          payment_mode?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_entered_by_fkey"
+            columns: ["entered_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       task_activities: {
         Row: {
           action: string
@@ -341,6 +447,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_default_roles_for_owner: {
+        Args: { p_owner_id: string }
+        Returns: undefined
+      }
       get_my_profile_id: { Args: never; Returns: string }
       has_permission: { Args: { _permission_name: string }; Returns: boolean }
       is_owner: { Args: never; Returns: boolean }

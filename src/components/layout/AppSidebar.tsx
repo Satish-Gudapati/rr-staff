@@ -9,6 +9,8 @@ import {
   LogOut,
   ChevronLeft,
   Menu,
+  IndianRupee,
+  Gift,
 } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -30,6 +32,9 @@ const AppSidebar = () => {
     ...(hasPermission('can_view_dashboard')
       ? [{ label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: isOwner ? '/owner-dashboard' : '/dashboard' }]
       : []),
+    ...(hasPermission('can_add_sales') || hasPermission('can_view_sales') || hasPermission('can_view_own_sales') || isOwner
+      ? [{ label: 'Sales', icon: <IndianRupee size={20} />, path: '/sales' }]
+      : []),
     ...(hasPermission('can_view_tasks') || hasPermission('can_manage_tasks')
       ? [{ label: 'Tasks', icon: <ClipboardList size={20} />, path: '/tasks' }]
       : []),
@@ -38,6 +43,9 @@ const AppSidebar = () => {
           { label: 'Employees', icon: <Users size={20} />, path: '/employees' },
           { label: 'Roles', icon: <Tag size={20} />, path: '/roles' },
         ]
+      : []),
+    ...(hasPermission('can_view_own_incentives') || hasPermission('can_manage_incentives') || isOwner
+      ? [{ label: 'Incentives', icon: <Gift size={20} />, path: '/incentives' }]
       : []),
     ...(hasPermission('can_view_reports')
       ? [{ label: 'Reports', icon: <BarChart3 size={20} />, path: '/reports' }]
@@ -64,7 +72,7 @@ const AppSidebar = () => {
           {!collapsed && (
             <motion.span initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: 'auto' }} exit={{ opacity: 0, width: 0 }}
               className="font-semibold text-foreground whitespace-nowrap overflow-hidden">
-              RR Workforce
+              RR Staff
             </motion.span>
           )}
         </AnimatePresence>
