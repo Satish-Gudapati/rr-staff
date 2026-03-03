@@ -78,3 +78,28 @@ export interface ActivityLog {
   timestamp: string;
   details?: string;
 }
+
+export interface Sale {
+  id: string;
+  owner_id: string;
+  entered_by: string;
+  amount: number;
+  payment_mode: 'cash' | 'upi' | 'card';
+  description?: string;
+  customer_name?: string;
+  created_at: string;
+  updated_at: string;
+  entered_by_profile?: UserProfile;
+}
+
+export interface Incentive {
+  id: string;
+  owner_id: string;
+  employee_id: string;
+  amount: number;
+  reason?: string;
+  incentive_date: string;
+  created_by: string;
+  created_at: string;
+  employee_profile?: UserProfile;
+}

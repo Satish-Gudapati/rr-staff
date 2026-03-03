@@ -13,6 +13,8 @@ import TaskDetail from "./pages/TaskDetail";
 import Employees from "./pages/Employees";
 import Roles from "./pages/Roles";
 import Reports from "./pages/Reports";
+import Sales from "./pages/Sales";
+import Incentives from "./pages/Incentives";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,11 +31,13 @@ const App = () => (
             <Route element={<AppLayout />}>
               <Route path="/owner-dashboard" element={<OwnerDashboard />} />
               <Route path="/dashboard" element={<EmployeeDashboard />} />
+              <Route path="/sales" element={<Sales />} />
               <Route path="/tasks" element={<Tasks />} />
               <Route path="/tasks/:id" element={<TaskDetail />} />
               <Route path="/employees" element={<Employees />} />
               <Route path="/roles" element={<Roles />} />
               <Route path="/reports" element={<Reports />} />
+              <Route path="/incentives" element={<Incentives />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
