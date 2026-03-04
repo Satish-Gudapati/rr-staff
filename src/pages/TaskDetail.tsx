@@ -127,8 +127,15 @@ const TaskDetail = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['task', id] });
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['sales'] });
       setEditing(false);
-      toast.success('Task updated');
+      const wasCompleted = editForm.status === 'completed' && task?.status !== 'completed';
+      const isPaid = editForm.payment_status === 'paid';
+      if (wasCompleted && isPaid && (parseFloat(editForm.total_amount) || 0) > 0) {
+        toast.success('Task updated — sale auto-created in Sales');
+      } else {
+        toast.success('Task updated');
+      }
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -145,6 +152,7 @@ const TaskDetail = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['task', id] });
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['sales'] });
       toast.success('Status updated');
     },
     onError: (e: any) => toast.error(e.message),

@@ -87,9 +87,10 @@ export interface Sale {
   payment_mode: 'cash' | 'upi' | 'card';
   description?: string;
   customer_name?: string;
+  task_id?: string;
   created_at: string;
   updated_at: string;
-  entered_by_profile?: UserProfile;
+  entered_by_profile?: Partial<UserProfile>;
 }
 
 export interface Incentive {

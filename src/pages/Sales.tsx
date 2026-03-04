@@ -146,6 +146,11 @@ const Sales = () => {
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${paymentModeColors[sale.payment_mode]}`}>
                         {paymentModeIcons[sale.payment_mode]} {sale.payment_mode.toUpperCase()}
                       </span>
+                      {sale.task_id && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-accent text-accent-foreground border border-border">
+                          🔗 From Task
+                        </span>
+                      )}
                     </div>
                     {sale.description && <p className="text-xs text-muted-foreground mt-1">{sale.description}</p>}
                     <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
