@@ -64,28 +64,31 @@ const AppSidebar = () => {
 
   const sidebarContent = (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-3 px-4 py-6 border-b border-sidebar-border">
-        <div className="w-9 h-9 rounded-lg metric-gradient flex items-center justify-center text-primary-foreground font-bold text-sm shrink-0">
+      <div className="flex items-center gap-3 px-4 py-5 border-b border-sidebar-border">
+        <div className="w-9 h-9 rounded-lg metric-gradient flex items-center justify-center text-primary-foreground font-bold text-sm shrink-0 shadow-sm">
           RR
         </div>
         <AnimatePresence>
           {!collapsed && (
-            <motion.span initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: 'auto' }} exit={{ opacity: 0, width: 0 }}
-              className="font-semibold text-foreground whitespace-nowrap overflow-hidden">
-              RR Staff
-            </motion.span>
+            <motion.div initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: 'auto' }} exit={{ opacity: 0, width: 0 }}
+              className="overflow-hidden whitespace-nowrap">
+              <span className="font-semibold text-foreground text-sm">RR Staff</span>
+              <p className="text-[10px] text-muted-foreground leading-tight">Management System</p>
+            </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-1">
+      <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
             <button key={item.path} onClick={() => handleNav(item.path)}
-              className={cn('w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium',
-                isActive ? 'bg-primary text-primary-foreground shadow-md' : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground')}>
-              {item.icon}
+              className={cn('w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-150 text-[13px] font-medium',
+                isActive
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground')}>
+              <span className={cn('shrink-0', isActive && 'drop-shadow-sm')}>{item.icon}</span>
               <AnimatePresence>
                 {!collapsed && (
                   <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="whitespace-nowrap">

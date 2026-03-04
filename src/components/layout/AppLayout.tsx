@@ -21,8 +21,10 @@ const AppLayout = () => {
   return (
     <div className="flex min-h-screen bg-background">
       <AppSidebar />
-      <main className="flex-1 p-4 lg:p-8 overflow-auto">
-        <Outlet />
+      <main className="flex-1 p-4 lg:p-8 overflow-auto page-enter">
+        <div className="pt-12 lg:pt-0">
+          <Outlet />
+        </div>
       </main>
     </div>
   );
