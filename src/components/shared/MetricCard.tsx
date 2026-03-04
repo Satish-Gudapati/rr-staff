@@ -22,12 +22,13 @@ const MetricCard = ({ title, value, change, changeType, icon, gradient, index = 
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1, duration: 0.4 }}
-      className="glass-card p-6 flex items-start justify-between"
+      transition={{ delay: index * 0.08, duration: 0.35, ease: 'easeOut' }}
+      whileHover={{ y: -2, transition: { duration: 0.15 } }}
+      className="glass-card p-5 flex items-start justify-between group cursor-default"
     >
-      <div className="space-y-2">
-        <p className="text-sm font-medium text-muted-foreground">{title}</p>
-        <p className="text-3xl font-bold text-foreground tracking-tight">{value}</p>
+      <div className="space-y-1.5">
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{title}</p>
+        <p className="text-2xl font-bold text-foreground tracking-tight">{value}</p>
         {change && (
           <p className={cn(
             'text-xs font-medium',
@@ -39,7 +40,7 @@ const MetricCard = ({ title, value, change, changeType, icon, gradient, index = 
           </p>
         )}
       </div>
-      <div className={cn('w-12 h-12 rounded-xl flex items-center justify-center text-primary-foreground', gradientMap[gradient])}>
+      <div className={cn('w-10 h-10 rounded-lg flex items-center justify-center text-primary-foreground transition-transform group-hover:scale-110', gradientMap[gradient])}>
         {icon}
       </div>
     </motion.div>

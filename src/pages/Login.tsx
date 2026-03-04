@@ -85,19 +85,24 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background bg-dots p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
         className="w-full max-w-md"
       >
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl metric-gradient flex items-center justify-center text-primary-foreground font-bold text-2xl mx-auto mb-4 shadow-lg">
+          <motion.div
+            initial={{ scale: 0.8, rotate: -5 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ delay: 0.15, type: 'spring', stiffness: 200 }}
+            className="w-16 h-16 rounded-2xl metric-gradient flex items-center justify-center text-primary-foreground font-bold text-2xl mx-auto mb-4 shadow-lg"
+          >
             RR
-          </div>
-          <h1 className="text-2xl font-bold text-foreground">RR Workforce</h1>
-          <p className="text-muted-foreground mt-1">Management System</p>
+          </motion.div>
+          <h1 className="text-2xl font-bold text-foreground">RR Staff Management</h1>
+          <p className="text-muted-foreground mt-1 text-sm">Sign in to manage your workforce</p>
         </div>
 
         <div className="glass-card p-8">

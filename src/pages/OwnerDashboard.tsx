@@ -90,10 +90,10 @@ const OwnerDashboard = () => {
   ];
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-8 max-w-7xl mx-auto">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl lg:text-3xl font-bold text-foreground">Welcome back, {user?.full_name?.split(' ')[0]}</h1>
-        <p className="text-muted-foreground mt-1">Here's your business overview.</p>
+        <p className="text-muted-foreground text-sm">Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'},</p>
+        <h1 className="text-2xl lg:text-3xl font-bold text-foreground mt-0.5">{user?.full_name?.split(' ')[0]} 👋</h1>
       </motion.div>
 
       {/* Sales Metrics */}
