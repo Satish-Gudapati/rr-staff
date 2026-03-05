@@ -44,6 +44,16 @@ const Tasks = () => {
     enabled: !!user,
   });
 
+  // Fetch services for dropdown
+  const { data: servicesList = [] } = useQuery({
+    queryKey: ['services-list', user?.id],
+    queryFn: async () => {
+      const { data } = await supabase.from('services').select('*').eq('is_active', true).order('name');
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
   // Fetch tasks
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ['tasks', user?.id],
@@ -226,7 +236,16 @@ const Tasks = () => {
           <DialogHeader><DialogTitle>Create New Task</DialogTitle></DialogHeader>
           <form onSubmit={e => { e.preventDefault(); createMutation.mutate(); }} className="space-y-4">
             <div><Label>Title *</Label><Input required value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Task title" /></div>
-            <div><Label>Service Type *</Label><Input required value={form.service_type} onChange={e => setForm(f => ({ ...f, service_type: e.target.value }))} placeholder="e.g. Plumbing, Electrical, Cleaning..." /></div>
+            <div>
+              <Label>Service Type *</Label>
+              <Select required value={form.service_type} onValueChange={v => setForm(f => ({ ...f, service_type: v }))}>
+                <SelectTrigger><SelectValue placeholder="Select service" /></SelectTrigger>
+                <SelectContent>
+                  {servicesList.map(s => <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>)}
+                  <SelectItem value="General">General</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div><Label>Description</Label><Textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Task details..." rows={3} /></div>
             <div className="grid grid-cols-2 gap-4">
               <div>
