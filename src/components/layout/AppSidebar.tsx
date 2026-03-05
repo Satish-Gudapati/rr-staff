@@ -11,6 +11,7 @@ import {
   Menu,
   IndianRupee,
   Gift,
+  Briefcase,
 } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -47,6 +48,7 @@ const AppSidebar = () => {
     ...(hasPermission('can_view_own_incentives') || hasPermission('can_manage_incentives') || isOwner
       ? [{ label: 'Incentives', icon: <Gift size={20} />, path: '/incentives' }]
       : []),
+    { label: 'Services', icon: <Briefcase size={20} />, path: '/services' },
     ...(hasPermission('can_view_reports')
       ? [{ label: 'Reports', icon: <BarChart3 size={20} />, path: '/reports' }]
       : []),
