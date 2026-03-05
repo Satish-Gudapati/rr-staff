@@ -52,12 +52,13 @@ export interface Task {
   total_amount: number;
   payment_status: 'unpaid' | 'partial' | 'paid';
   due_date?: string;
+  assigned_at?: string;
   completed_at?: string;
   created_at: string;
   updated_at: string;
   // joined fields
-  assigned_to_profile?: UserProfile;
-  created_by_profile?: UserProfile;
+  assigned_to_profile?: Partial<UserProfile>;
+  created_by_profile?: Partial<UserProfile>;
 }
 
 export interface TaskActivity {
