@@ -109,6 +109,10 @@ const TaskDetail = () => {
         priority: editForm.priority,
         due_date: editForm.due_date || null,
       };
+      // Record assigned_at when reassigning
+      if (editForm.assigned_to !== task?.assigned_to) {
+        updates.assigned_at = new Date().toISOString();
+      }
       if (editForm.status === 'completed' && task?.status !== 'completed') {
         updates.completed_at = new Date().toISOString();
       }
@@ -366,6 +370,7 @@ const TaskDetail = () => {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="text-xs text-muted-foreground flex flex-wrap gap-4">
         <span>Created by: {task.created_by_profile?.full_name || 'Unknown'}</span>
         <span>Created: {format(new Date(task.created_at), 'MMM d, yyyy h:mm a')}</span>
+        {task.assigned_at && <span>Assigned: {format(new Date(task.assigned_at), 'MMM d, yyyy h:mm a')}</span>}
         {task.completed_at && <span>Completed: {format(new Date(task.completed_at), 'MMM d, yyyy h:mm a')}</span>}
       </motion.div>
     </div>

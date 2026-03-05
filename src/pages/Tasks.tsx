@@ -104,6 +104,7 @@ const Tasks = () => {
         owner_id: ownerId,
         created_by: user!.id,
         assigned_to: form.assigned_to,
+        assigned_at: new Date().toISOString(),
         title: form.title.trim(),
         description: form.description.trim(),
         service_type: form.service_type.trim() || 'General',
