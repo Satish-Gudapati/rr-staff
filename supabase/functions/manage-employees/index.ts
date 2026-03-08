@@ -101,7 +101,7 @@ serve(async (req) => {
     }
 
     if (action === 'update') {
-      const { profile_id, full_name, email, is_active, permissions, role_id, salary, incentives } = payload;
+      const { profile_id, full_name, email, is_active, permissions, role_id, salary, incentives, allowed_devices } = payload;
 
       const { data: empProfile } = await supabaseAdmin.from('profiles').select('*').eq('id', profile_id).eq('owner_id', callerProfile.id).single();
       if (!empProfile) {
