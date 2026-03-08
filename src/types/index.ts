@@ -91,6 +91,8 @@ export interface Sale {
   description?: string;
   customer_name?: string;
   task_id?: string;
+  service_id?: string;
+  sub_service_id?: string;
   created_at: string;
   updated_at: string;
   entered_by_profile?: Partial<UserProfile>;
