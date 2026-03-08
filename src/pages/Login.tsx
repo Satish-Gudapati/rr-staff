@@ -67,6 +67,27 @@ const Login = () => {
         const result = await login(email, password);
         if (!result.success) {
           setError(result.error || 'Invalid credentials.');
+        } else {
+          // Check device restriction for employees
+          const currentDevice = detectDeviceType();
+          const { data: { user: authUser } } = await supabase.auth.getUser();
+          if (authUser) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('role, allowed_devices')
+              .eq('user_id', authUser.id)
+              .single();
+
+            if (profile && profile.role === 'employee') {
+              const allowed = (profile.allowed_devices as string[]) || ['mobile', 'tablet', 'desktop', 'pos'];
+              if (!allowed.includes(currentDevice)) {
+                await supabase.auth.signOut();
+                setError(`Access denied. You are not allowed to login from a ${DEVICE_LABELS[currentDevice]}. Please contact your owner.`);
+                setLoading(false);
+                return;
+              }
+            }
+          }
         }
       }
     } catch {

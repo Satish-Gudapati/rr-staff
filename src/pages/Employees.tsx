@@ -169,7 +169,7 @@ const Employees = () => {
     if (editingId) {
       updateMutation.mutate({
         profileId: editingId,
-        data: { full_name: formData.full_name, email: formData.email, permissions: formData.permissions, role_id: formData.role_id || '', salary: formData.salary, incentives: formData.incentives },
+        data: { full_name: formData.full_name, email: formData.email, permissions: formData.permissions, role_id: formData.role_id || '', salary: formData.salary, incentives: formData.incentives, allowed_devices: formData.allowed_devices },
       });
     } else {
       if (!formData.password || formData.password.length < 6) {
