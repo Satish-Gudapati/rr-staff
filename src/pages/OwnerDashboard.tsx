@@ -1,7 +1,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import MetricCard from '@/components/shared/MetricCard';
 import { motion } from 'framer-motion';
-import { Users, ClipboardList, ArrowRight, IndianRupee, TrendingUp, Gift, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { Users, ClipboardList, ArrowRight, IndianRupee, TrendingUp, Gift, CheckCircle, Clock, AlertCircle, LogIn, Timer, Coffee, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -48,6 +48,16 @@ const OwnerDashboard = () => {
     enabled: !!user,
   });
 
+  const { data: todayAttendance = [] } = useQuery({
+    queryKey: ['dashboard-attendance-today'],
+    queryFn: async () => {
+      const today = new Date().toISOString().split('T')[0];
+      const { data } = await supabase.from('attendance').select('*, profile:profiles(full_name)').eq('date', today);
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
   const now = new Date();
   const todayStart = startOfDay(now).toISOString();
   const monthStart = startOfMonth(now).toISOString();
@@ -60,6 +70,11 @@ const OwnerDashboard = () => {
   const pendingTasks = tasks.filter(t => t.status === 'pending').length;
   const completedTasks = tasks.filter(t => t.status === 'completed').length;
   const inProgressTasks = tasks.filter(t => t.status === 'in_progress').length;
+
+  const checkedInCount = todayAttendance.filter((a: any) => a.status === 'checked_in' || a.status === 'on_break').length;
+  const checkedOutCount = todayAttendance.filter((a: any) => a.status === 'checked_out').length;
+  const onBreakCount = todayAttendance.filter((a: any) => a.status === 'on_break').length;
+  const totalHoursToday = todayAttendance.reduce((sum: number, a: any) => sum + Number(a.total_hours || 0), 0);
 
   const fmt = (v: number) => `₹${v.toLocaleString('en-IN')}`;
 
@@ -126,7 +141,50 @@ const OwnerDashboard = () => {
         </div>
       </motion.div>
 
-      {/* Quick Actions */}
+      {/* Attendance Summary */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-semibold text-foreground">Today's Attendance</h2>
+          <button onClick={() => navigate('/attendance')} className="text-sm text-primary hover:underline">View all</button>
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <MetricCard title="Checked In" value={String(checkedInCount)} icon={<LogIn size={22} />} gradient="success" index={0} />
+          <MetricCard title="On Break" value={String(onBreakCount)} icon={<Coffee size={22} />} gradient="warning" index={1} />
+          <MetricCard title="Checked Out" value={String(checkedOutCount)} icon={<LogOut size={22} />} gradient="primary" index={2} />
+          <MetricCard title="Total Hours" value={totalHoursToday.toFixed(1) + 'h'} icon={<Timer size={22} />} gradient="primary" index={3} />
+        </div>
+        {todayAttendance.length > 0 && (
+          <div className="glass-card p-4">
+            <div className="space-y-2">
+              {todayAttendance.slice(0, 5).map((a: any) => (
+                <div key={a.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-semibold">
+                      {a.profile?.full_name?.split(' ').map((n: string) => n[0]).join('') || '?'}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{a.profile?.full_name || 'Unknown'}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {a.check_in ? new Date(a.check_in).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '--'}
+                        {a.check_out ? ` → ${new Date(a.check_out).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}` : ' → Working...'}
+                        {' · '}{Number(a.total_hours || 0).toFixed(1)}h
+                      </p>
+                    </div>
+                  </div>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                    a.status === 'checked_in' ? 'bg-success/10 text-success' :
+                    a.status === 'on_break' ? 'bg-warning/10 text-warning' :
+                    'bg-muted text-muted-foreground'
+                  }`}>
+                    {a.status === 'checked_in' ? 'Working' : a.status === 'on_break' ? 'On Break' : 'Done'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </motion.div>
+
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="glass-card p-6">
         <h2 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
