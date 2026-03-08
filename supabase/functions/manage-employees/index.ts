@@ -49,7 +49,7 @@ serve(async (req) => {
     const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
 
     if (action === 'create') {
-      const { email, password, full_name, permissions, role_id, salary, incentives } = payload;
+      const { email, password, full_name, permissions, role_id, salary, incentives, allowed_devices } = payload;
 
       // Create auth user
       const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
@@ -75,6 +75,7 @@ serve(async (req) => {
         role_id: role_id || null,
         salary: parseFloat(salary) || 0,
         incentives: parseFloat(incentives) || 0,
+        allowed_devices: allowed_devices || ['mobile', 'tablet', 'desktop', 'pos'],
       }).select().single();
 
       if (profileError) {
@@ -100,7 +101,7 @@ serve(async (req) => {
     }
 
     if (action === 'update') {
-      const { profile_id, full_name, email, is_active, permissions, role_id, salary, incentives } = payload;
+      const { profile_id, full_name, email, is_active, permissions, role_id, salary, incentives, allowed_devices } = payload;
 
       const { data: empProfile } = await supabaseAdmin.from('profiles').select('*').eq('id', profile_id).eq('owner_id', callerProfile.id).single();
       if (!empProfile) {
@@ -116,6 +117,7 @@ serve(async (req) => {
       if (role_id !== undefined) updates.role_id = role_id || null;
       if (salary !== undefined) updates.salary = parseFloat(salary) || 0;
       if (incentives !== undefined) updates.incentives = parseFloat(incentives) || 0;
+      if (allowed_devices !== undefined) updates.allowed_devices = allowed_devices;
 
       if (Object.keys(updates).length > 0) {
         await supabaseAdmin.from('profiles').update(updates).eq('id', profile_id);

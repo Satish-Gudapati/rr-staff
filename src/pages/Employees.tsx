@@ -2,10 +2,19 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Permission } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, Pencil, Trash2, X, Loader2, Shield, UserPlus, Users } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, X, Loader2, Shield, UserPlus, Users, Monitor, Smartphone, Tablet, MonitorSmartphone } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+
+import { DeviceType, DEVICE_LABELS } from '@/lib/deviceDetect';
+
+const DEVICE_OPTIONS: { value: DeviceType; label: string; icon: React.ReactNode }[] = [
+  { value: 'mobile', label: 'Mobile', icon: <Smartphone size={16} /> },
+  { value: 'tablet', label: 'Tablet', icon: <Tablet size={16} /> },
+  { value: 'desktop', label: 'Desktop', icon: <Monitor size={16} /> },
+  { value: 'pos', label: 'POS Terminal', icon: <MonitorSmartphone size={16} /> },
+];
 
 interface EmployeeFormData {
   full_name: string;
@@ -15,6 +24,7 @@ interface EmployeeFormData {
   role_id: string;
   salary: string;
   incentives: string;
+  allowed_devices: string[];
 }
 
 const Employees = () => {
@@ -23,7 +33,7 @@ const Employees = () => {
   const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<EmployeeFormData>({ full_name: '', email: '', password: '', permissions: [], role_id: '', salary: '0', incentives: '0' });
+  const [formData, setFormData] = useState<EmployeeFormData>({ full_name: '', email: '', password: '', permissions: [], role_id: '', salary: '0', incentives: '0', allowed_devices: ['mobile', 'tablet', 'desktop', 'pos'] });
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   // Fetch employees
@@ -144,12 +154,12 @@ const Employees = () => {
   const resetForm = () => {
     setShowForm(false);
     setEditingId(null);
-    setFormData({ full_name: '', email: '', password: '', permissions: [], role_id: '', salary: '0', incentives: '0' });
+    setFormData({ full_name: '', email: '', password: '', permissions: [], role_id: '', salary: '0', incentives: '0', allowed_devices: ['mobile', 'tablet', 'desktop', 'pos'] });
   };
 
   const handleEdit = (emp: any) => {
     const empPerms = empPermissions.filter((ep: any) => ep.profile_id === emp.id).map((ep: any) => ep.permission_id);
-    setFormData({ full_name: emp.full_name, email: emp.email, password: '', permissions: empPerms, role_id: emp.role_id || '', salary: String(emp.salary || 0), incentives: String(emp.incentives || 0) });
+    setFormData({ full_name: emp.full_name, email: emp.email, password: '', permissions: empPerms, role_id: emp.role_id || '', salary: String(emp.salary || 0), incentives: String(emp.incentives || 0), allowed_devices: emp.allowed_devices || ['mobile', 'tablet', 'desktop', 'pos'] });
     setEditingId(emp.id);
     setShowForm(true);
   };
@@ -159,7 +169,7 @@ const Employees = () => {
     if (editingId) {
       updateMutation.mutate({
         profileId: editingId,
-        data: { full_name: formData.full_name, email: formData.email, permissions: formData.permissions, role_id: formData.role_id || '', salary: formData.salary, incentives: formData.incentives },
+        data: { full_name: formData.full_name, email: formData.email, permissions: formData.permissions, role_id: formData.role_id || '', salary: formData.salary, incentives: formData.incentives, allowed_devices: formData.allowed_devices },
       });
     } else {
       if (!formData.password || formData.password.length < 6) {
@@ -289,6 +299,40 @@ const Employees = () => {
                       </label>
                     ))}
                   </div>
+                </div>
+
+                {/* Device Access Control */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-3 flex items-center gap-2">
+                    <Monitor size={14} /> Allowed Login Devices
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {DEVICE_OPTIONS.map((device) => {
+                      const isChecked = formData.allowed_devices.includes(device.value);
+                      return (
+                        <label key={device.value}
+                          className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors ${
+                            isChecked ? 'bg-primary/10 border border-primary/30' : 'bg-muted border border-transparent hover:bg-accent/10'
+                          }`}>
+                          <input type="checkbox" checked={isChecked}
+                            onChange={() => {
+                              setFormData(prev => ({
+                                ...prev,
+                                allowed_devices: isChecked
+                                  ? prev.allowed_devices.filter(d => d !== device.value)
+                                  : [...prev.allowed_devices, device.value],
+                              }));
+                            }}
+                            className="w-4 h-4 rounded border-border text-primary focus:ring-ring" />
+                          <span className="text-muted-foreground">{device.icon}</span>
+                          <span className="text-sm font-medium text-foreground">{device.label}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  {formData.allowed_devices.length === 0 && (
+                    <p className="text-xs text-destructive mt-1">At least one device must be selected</p>
+                  )}
                 </div>
 
                 <div className="flex gap-3 pt-2">

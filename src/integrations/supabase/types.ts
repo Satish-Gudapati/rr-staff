@@ -141,6 +141,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          allowed_devices: string[]
           company_name: string | null
           created_at: string
           email: string
@@ -156,6 +157,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          allowed_devices?: string[]
           company_name?: string | null
           created_at?: string
           email: string
@@ -171,6 +173,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          allowed_devices?: string[]
           company_name?: string | null
           created_at?: string
           email?: string

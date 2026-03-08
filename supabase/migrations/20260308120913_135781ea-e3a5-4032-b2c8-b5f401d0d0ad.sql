@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN allowed_devices text[] NOT NULL DEFAULT ARRAY['mobile', 'tablet', 'desktop', 'pos'];
