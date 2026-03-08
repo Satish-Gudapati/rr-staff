@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Permission } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, Pencil, Trash2, X, Loader2, Shield, UserPlus, Users, Monitor, Smartphone, Tablet, MonitorSmartphone } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, X, Loader2, Shield, UserPlus, Users, Monitor, Smartphone, Tablet, MonitorSmartphone, KeyRound } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -35,6 +35,8 @@ const Employees = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<EmployeeFormData>({ full_name: '', email: '', password: '', permissions: [], role_id: '', salary: '0', incentives: '0', allowed_devices: ['mobile', 'tablet', 'desktop', 'pos'] });
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [resetPwId, setResetPwId] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState('');
 
   // Fetch employees
   const { data: employees = [], isLoading } = useQuery({
@@ -131,6 +133,24 @@ const Employees = () => {
       toast.success('Employee deleted');
       queryClient.invalidateQueries({ queryKey: ['employees'] });
       setDeleteConfirm(null);
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  // Reset password
+  const resetPasswordMutation = useMutation({
+    mutationFn: async ({ profileId, password }: { profileId: string; password: string }) => {
+      const { data: result, error } = await supabase.functions.invoke('manage-employees', {
+        body: { action: 'reset_password', profile_id: profileId, new_password: password },
+      });
+      if (error) throw error;
+      if (result?.error) throw new Error(result.error);
+      return result;
+    },
+    onSuccess: () => {
+      toast.success('Password changed successfully');
+      setResetPwId(null);
+      setNewPassword('');
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -412,9 +432,29 @@ const Employees = () => {
                     }`}>
                     {emp.is_active ? 'Active' : 'Inactive'}
                   </button>
-                  <button onClick={() => handleEdit(emp)} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+                  <button onClick={() => handleEdit(emp)} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Edit">
                     <Pencil size={15} />
                   </button>
+                  {resetPwId === emp.id ? (
+                    <form onSubmit={(e) => { e.preventDefault(); resetPasswordMutation.mutate({ profileId: emp.id, password: newPassword }); }}
+                      className="flex items-center gap-1">
+                      <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="New password" minLength={6} required autoFocus
+                        className="w-28 px-2 py-1 rounded text-xs bg-muted border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
+                      <button type="submit" disabled={resetPasswordMutation.isPending}
+                        className="px-2 py-1 rounded text-xs font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50">
+                        {resetPasswordMutation.isPending ? '...' : 'Set'}
+                      </button>
+                      <button type="button" onClick={() => { setResetPwId(null); setNewPassword(''); }}
+                        className="px-2 py-1 rounded text-xs font-medium bg-muted text-muted-foreground">
+                        Cancel
+                      </button>
+                    </form>
+                  ) : (
+                    <button onClick={() => { setResetPwId(emp.id); setNewPassword(''); }} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Reset Password">
+                      <KeyRound size={15} />
+                    </button>
+                  )}
                   {deleteConfirm === emp.id ? (
                     <div className="flex items-center gap-1">
                       <button onClick={() => deleteMutation.mutate(emp.id)}

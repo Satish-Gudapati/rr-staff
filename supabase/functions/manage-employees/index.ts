@@ -144,6 +144,34 @@ serve(async (req) => {
       });
     }
 
+    if (action === 'reset_password') {
+      const { profile_id, new_password } = payload;
+
+      if (!new_password || new_password.length < 6) {
+        return new Response(JSON.stringify({ error: 'Password must be at least 6 characters' }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const { data: empProfile } = await supabaseAdmin.from('profiles').select('*').eq('id', profile_id).eq('owner_id', callerProfile.id).single();
+      if (!empProfile) {
+        return new Response(JSON.stringify({ error: 'Employee not found' }), {
+          status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const { error: pwError } = await supabaseAdmin.auth.admin.updateUserById(empProfile.user_id, { password: new_password });
+      if (pwError) {
+        return new Response(JSON.stringify({ error: pwError.message }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     if (action === 'delete') {
       const { profile_id } = payload;
 
