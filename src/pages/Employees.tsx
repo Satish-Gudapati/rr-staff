@@ -301,6 +301,40 @@ const Employees = () => {
                   </div>
                 </div>
 
+                {/* Device Access Control */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-3 flex items-center gap-2">
+                    <Monitor size={14} /> Allowed Login Devices
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {DEVICE_OPTIONS.map((device) => {
+                      const isChecked = formData.allowed_devices.includes(device.value);
+                      return (
+                        <label key={device.value}
+                          className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors ${
+                            isChecked ? 'bg-primary/10 border border-primary/30' : 'bg-muted border border-transparent hover:bg-accent/10'
+                          }`}>
+                          <input type="checkbox" checked={isChecked}
+                            onChange={() => {
+                              setFormData(prev => ({
+                                ...prev,
+                                allowed_devices: isChecked
+                                  ? prev.allowed_devices.filter(d => d !== device.value)
+                                  : [...prev.allowed_devices, device.value],
+                              }));
+                            }}
+                            className="w-4 h-4 rounded border-border text-primary focus:ring-ring" />
+                          <span className="text-muted-foreground">{device.icon}</span>
+                          <span className="text-sm font-medium text-foreground">{device.label}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  {formData.allowed_devices.length === 0 && (
+                    <p className="text-xs text-destructive mt-1">At least one device must be selected</p>
+                  )}
+                </div>
+
                 <div className="flex gap-3 pt-2">
                   <button type="button" onClick={resetForm}
                     className="flex-1 py-2.5 rounded-xl border border-border text-foreground text-sm font-medium hover:bg-muted transition-colors">
