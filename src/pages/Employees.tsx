@@ -7,6 +7,15 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+import { DeviceType, DEVICE_LABELS } from '@/lib/deviceDetect';
+
+const DEVICE_OPTIONS: { value: DeviceType; label: string; icon: React.ReactNode }[] = [
+  { value: 'mobile', label: 'Mobile', icon: <Smartphone size={16} /> },
+  { value: 'tablet', label: 'Tablet', icon: <Tablet size={16} /> },
+  { value: 'desktop', label: 'Desktop', icon: <Monitor size={16} /> },
+  { value: 'pos', label: 'POS Terminal', icon: <MonitorSmartphone size={16} /> },
+];
+
 interface EmployeeFormData {
   full_name: string;
   email: string;
@@ -15,6 +24,7 @@ interface EmployeeFormData {
   role_id: string;
   salary: string;
   incentives: string;
+  allowed_devices: string[];
 }
 
 const Employees = () => {
