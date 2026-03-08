@@ -48,6 +48,16 @@ const OwnerDashboard = () => {
     enabled: !!user,
   });
 
+  const { data: todayAttendance = [] } = useQuery({
+    queryKey: ['dashboard-attendance-today'],
+    queryFn: async () => {
+      const today = new Date().toISOString().split('T')[0];
+      const { data } = await supabase.from('attendance').select('*, profile:profiles(full_name)').eq('date', today);
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
   const now = new Date();
   const todayStart = startOfDay(now).toISOString();
   const monthStart = startOfMonth(now).toISOString();
