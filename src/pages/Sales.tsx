@@ -56,7 +56,38 @@ const Sales = () => {
     return () => { supabase.removeChannel(channel); };
   }, [queryClient]);
 
-  const [form, setForm] = useState({ amount: '', payment_mode: 'cash', description: '', customer_name: '' });
+  // Fetch services
+  const { data: servicesList = [] } = useQuery({
+    queryKey: ['services-list-sales'],
+    queryFn: async () => {
+      const { data } = await supabase.from('services').select('*').eq('is_active', true).order('name');
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
+  // Fetch sub-services
+  const { data: subServicesList = [] } = useQuery({
+    queryKey: ['sub-services-list-sales'],
+    queryFn: async () => {
+      const { data } = await supabase.from('sub_services').select('*').eq('is_active', true).order('name');
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
+  const [form, setForm] = useState({ amount: '', payment_mode: 'cash', description: '', customer_name: '', service_id: '', sub_service_id: '' });
+
+  const filteredSubServices = subServicesList.filter(ss => ss.service_id === form.service_id);
+
+  const handleSubServiceChange = (subServiceId: string) => {
+    const subService = subServicesList.find(ss => ss.id === subServiceId);
+    setForm(f => ({
+      ...f,
+      sub_service_id: subServiceId,
+      amount: subService ? String(subService.price) : f.amount,
+    }));
+  };
 
   const createMutation = useMutation({
     mutationFn: async () => {
@@ -68,13 +99,15 @@ const Sales = () => {
         payment_mode: form.payment_mode,
         description: form.description.trim() || null,
         customer_name: form.customer_name.trim() || null,
+        service_id: form.service_id || null,
+        sub_service_id: form.sub_service_id || null,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sales'] });
       setShowCreate(false);
-      setForm({ amount: '', payment_mode: 'cash', description: '', customer_name: '' });
+      setForm({ amount: '', payment_mode: 'cash', description: '', customer_name: '', service_id: '', sub_service_id: '' });
       toast.success('Sale recorded successfully');
     },
     onError: (e: any) => toast.error(e.message),
