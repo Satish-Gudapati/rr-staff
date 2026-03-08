@@ -101,7 +101,7 @@ const Tasks = () => {
 
   // Create task
   const [form, setForm] = useState({
-    title: '', description: '', service_id: '', sub_service_id: '',
+    customer_name: '', customer_phone: '', description: '', service_id: '', sub_service_id: '',
     assigned_to: '',
     priority: 'medium' as Task['priority'],
     total_amount: '', payment_status: 'unpaid' as Task['payment_status'],
@@ -127,12 +127,16 @@ const Tasks = () => {
     mutationFn: async () => {
       const ownerId = isOwner ? user!.id : user!.owner_id!;
       const selectedService = servicesList.find(s => s.id === form.service_id);
+      const selectedSubService = subServicesList.find(ss => ss.id === form.sub_service_id);
+      const title = form.customer_name.trim() + (selectedSubService ? ` — ${selectedSubService.name}` : selectedService ? ` — ${selectedService.name}` : '');
       const { error } = await supabase.from('tasks').insert({
         owner_id: ownerId,
         created_by: user!.id,
         assigned_to: form.assigned_to,
         assigned_at: new Date().toISOString(),
-        title: form.title.trim(),
+        title: title,
+        customer_name: form.customer_name.trim(),
+        customer_phone: form.customer_phone.trim() || null,
         description: form.description.trim(),
         service_type: selectedService?.name || 'General',
         service_id: form.service_id || null,
@@ -147,7 +151,7 @@ const Tasks = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       setShowCreate(false);
-      setForm({ title: '', description: '', service_id: '', sub_service_id: '', assigned_to: '', priority: 'medium', total_amount: '', payment_status: 'unpaid', due_date: '' });
+      setForm({ customer_name: '', customer_phone: '', description: '', service_id: '', sub_service_id: '', assigned_to: '', priority: 'medium', total_amount: '', payment_status: 'unpaid', due_date: '' });
       toast.success('Task created successfully');
     },
     onError: (e: any) => toast.error(e.message),
@@ -265,7 +269,10 @@ const Tasks = () => {
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>Create New Task</DialogTitle></DialogHeader>
           <form onSubmit={e => { e.preventDefault(); createMutation.mutate(); }} className="space-y-4">
-            <div><Label>Title *</Label><Input required value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Task title" /></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>Customer Name *</Label><Input required value={form.customer_name} onChange={e => setForm(f => ({ ...f, customer_name: e.target.value }))} placeholder="Customer name" maxLength={100} /></div>
+              <div><Label>Phone Number</Label><Input value={form.customer_phone} onChange={e => setForm(f => ({ ...f, customer_phone: e.target.value }))} placeholder="Phone number" maxLength={15} type="tel" /></div>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Service *</Label>
@@ -328,7 +335,7 @@ const Tasks = () => {
             <div><Label>Due Date</Label><Input type="date" value={form.due_date} onChange={e => setForm(f => ({ ...f, due_date: e.target.value }))} /></div>
             <div className="flex justify-end gap-3 pt-2">
               <button type="button" onClick={() => setShowCreate(false)} className="px-4 py-2 rounded-lg text-sm text-muted-foreground hover:bg-muted transition-colors">Cancel</button>
-              <button type="submit" disabled={createMutation.isPending || !form.title || !form.assigned_to || !form.service_id}
+              <button type="submit" disabled={createMutation.isPending || !form.customer_name || !form.assigned_to || !form.service_id}
                 className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50">
                 {createMutation.isPending ? 'Creating...' : 'Create Task'}
               </button>

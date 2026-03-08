@@ -46,6 +46,8 @@ export interface Task {
   assigned_to: string;
   title: string;
   description: string;
+  customer_name?: string;
+  customer_phone?: string;
   service_type: string;
   service_id?: string;
   sub_service_id?: string;
