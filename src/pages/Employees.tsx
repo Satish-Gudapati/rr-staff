@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Permission } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, Pencil, Trash2, X, Loader2, Shield, UserPlus, Users } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, X, Loader2, Shield, UserPlus, Users, Monitor, Smartphone, Tablet, MonitorSmartphone } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
