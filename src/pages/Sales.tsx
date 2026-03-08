@@ -205,6 +205,28 @@ const Sales = () => {
         <DialogContent className="max-w-md">
           <DialogHeader><DialogTitle>Record New Sale</DialogTitle></DialogHeader>
           <form onSubmit={e => { e.preventDefault(); createMutation.mutate(); }} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Service</Label>
+                <Select value={form.service_id} onValueChange={v => setForm(f => ({ ...f, service_id: v, sub_service_id: '' }))}>
+                  <SelectTrigger><SelectValue placeholder="Select service" /></SelectTrigger>
+                  <SelectContent>
+                    {servicesList.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Sub-Service</Label>
+                <Select value={form.sub_service_id} onValueChange={handleSubServiceChange} disabled={!form.service_id}>
+                  <SelectTrigger><SelectValue placeholder={form.service_id ? "Select sub-service" : "Select service first"} /></SelectTrigger>
+                  <SelectContent>
+                    {filteredSubServices.map(ss => (
+                      <SelectItem key={ss.id} value={ss.id}>{ss.name} — ₹{Number(ss.price).toLocaleString('en-IN')}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
             <div><Label>Amount (₹) *</Label><Input required type="number" min="1" step="0.01" value={form.amount} onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} placeholder="0" /></div>
             <div>
               <Label>Payment Mode</Label>
