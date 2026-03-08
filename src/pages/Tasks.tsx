@@ -126,6 +126,7 @@ const Tasks = () => {
   const createMutation = useMutation({
     mutationFn: async () => {
       const ownerId = isOwner ? user!.id : user!.owner_id!;
+      const selectedService = servicesList.find(s => s.id === form.service_id);
       const { error } = await supabase.from('tasks').insert({
         owner_id: ownerId,
         created_by: user!.id,
@@ -133,7 +134,9 @@ const Tasks = () => {
         assigned_at: new Date().toISOString(),
         title: form.title.trim(),
         description: form.description.trim(),
-        service_type: form.service_type.trim() || 'General',
+        service_type: selectedService?.name || 'General',
+        service_id: form.service_id || null,
+        sub_service_id: form.sub_service_id || null,
         priority: form.priority,
         total_amount: parseFloat(form.total_amount) || 0,
         payment_status: form.payment_status,
@@ -144,7 +147,7 @@ const Tasks = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       setShowCreate(false);
-      setForm({ title: '', description: '', service_type: '', assigned_to: '', priority: 'medium', total_amount: '', payment_status: 'unpaid', due_date: '' });
+      setForm({ title: '', description: '', service_id: '', sub_service_id: '', assigned_to: '', priority: 'medium', total_amount: '', payment_status: 'unpaid', due_date: '' });
       toast.success('Task created successfully');
     },
     onError: (e: any) => toast.error(e.message),
