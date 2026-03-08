@@ -151,7 +151,7 @@ const Tasks = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       setShowCreate(false);
-      setForm({ title: '', description: '', service_id: '', sub_service_id: '', assigned_to: '', priority: 'medium', total_amount: '', payment_status: 'unpaid', due_date: '' });
+      setForm({ customer_name: '', customer_phone: '', description: '', service_id: '', sub_service_id: '', assigned_to: '', priority: 'medium', total_amount: '', payment_status: 'unpaid', due_date: '' });
       toast.success('Task created successfully');
     },
     onError: (e: any) => toast.error(e.message),
