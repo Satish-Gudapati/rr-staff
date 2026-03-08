@@ -54,6 +54,16 @@ const Tasks = () => {
     enabled: !!user,
   });
 
+  // Fetch sub-services for dropdown
+  const { data: subServicesList = [] } = useQuery({
+    queryKey: ['sub-services-list', user?.id],
+    queryFn: async () => {
+      const { data } = await supabase.from('sub_services').select('*').eq('is_active', true).order('name');
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
   // Fetch tasks
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ['tasks', user?.id],
@@ -91,15 +101,32 @@ const Tasks = () => {
 
   // Create task
   const [form, setForm] = useState({
-    title: '', description: '', service_type: '', assigned_to: '',
+    title: '', description: '', service_id: '', sub_service_id: '',
+    assigned_to: '',
     priority: 'medium' as Task['priority'],
     total_amount: '', payment_status: 'unpaid' as Task['payment_status'],
     due_date: '',
   });
 
+  // Filter sub-services based on selected service
+  const filteredSubServices = subServicesList.filter(
+    ss => ss.service_id === form.service_id
+  );
+
+  // Auto-fill amount when sub-service is selected
+  const handleSubServiceChange = (subServiceId: string) => {
+    const subService = subServicesList.find(ss => ss.id === subServiceId);
+    setForm(f => ({
+      ...f,
+      sub_service_id: subServiceId,
+      total_amount: subService ? String(subService.price) : f.total_amount,
+    }));
+  };
+
   const createMutation = useMutation({
     mutationFn: async () => {
       const ownerId = isOwner ? user!.id : user!.owner_id!;
+      const selectedService = servicesList.find(s => s.id === form.service_id);
       const { error } = await supabase.from('tasks').insert({
         owner_id: ownerId,
         created_by: user!.id,
@@ -107,7 +134,9 @@ const Tasks = () => {
         assigned_at: new Date().toISOString(),
         title: form.title.trim(),
         description: form.description.trim(),
-        service_type: form.service_type.trim() || 'General',
+        service_type: selectedService?.name || 'General',
+        service_id: form.service_id || null,
+        sub_service_id: form.sub_service_id || null,
         priority: form.priority,
         total_amount: parseFloat(form.total_amount) || 0,
         payment_status: form.payment_status,
@@ -118,7 +147,7 @@ const Tasks = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       setShowCreate(false);
-      setForm({ title: '', description: '', service_type: '', assigned_to: '', priority: 'medium', total_amount: '', payment_status: 'unpaid', due_date: '' });
+      setForm({ title: '', description: '', service_id: '', sub_service_id: '', assigned_to: '', priority: 'medium', total_amount: '', payment_status: 'unpaid', due_date: '' });
       toast.success('Task created successfully');
     },
     onError: (e: any) => toast.error(e.message),
@@ -237,15 +266,27 @@ const Tasks = () => {
           <DialogHeader><DialogTitle>Create New Task</DialogTitle></DialogHeader>
           <form onSubmit={e => { e.preventDefault(); createMutation.mutate(); }} className="space-y-4">
             <div><Label>Title *</Label><Input required value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Task title" /></div>
-            <div>
-              <Label>Service Type *</Label>
-              <Select required value={form.service_type} onValueChange={v => setForm(f => ({ ...f, service_type: v }))}>
-                <SelectTrigger><SelectValue placeholder="Select service" /></SelectTrigger>
-                <SelectContent>
-                  {servicesList.map(s => <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>)}
-                  <SelectItem value="General">General</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Service *</Label>
+                <Select value={form.service_id} onValueChange={v => setForm(f => ({ ...f, service_id: v, sub_service_id: '' }))}>
+                  <SelectTrigger><SelectValue placeholder="Select service" /></SelectTrigger>
+                  <SelectContent>
+                    {servicesList.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Sub-Service</Label>
+                <Select value={form.sub_service_id} onValueChange={handleSubServiceChange} disabled={!form.service_id}>
+                  <SelectTrigger><SelectValue placeholder={form.service_id ? "Select sub-service" : "Select service first"} /></SelectTrigger>
+                  <SelectContent>
+                    {filteredSubServices.map(ss => (
+                      <SelectItem key={ss.id} value={ss.id}>{ss.name} — ₹{Number(ss.price).toLocaleString('en-IN')}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <div><Label>Description</Label><Textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Task details..." rows={3} /></div>
             <div className="grid grid-cols-2 gap-4">
@@ -287,7 +328,7 @@ const Tasks = () => {
             <div><Label>Due Date</Label><Input type="date" value={form.due_date} onChange={e => setForm(f => ({ ...f, due_date: e.target.value }))} /></div>
             <div className="flex justify-end gap-3 pt-2">
               <button type="button" onClick={() => setShowCreate(false)} className="px-4 py-2 rounded-lg text-sm text-muted-foreground hover:bg-muted transition-colors">Cancel</button>
-              <button type="submit" disabled={createMutation.isPending || !form.title || !form.assigned_to || !form.service_type}
+              <button type="submit" disabled={createMutation.isPending || !form.title || !form.assigned_to || !form.service_id}
                 className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50">
                 {createMutation.isPending ? 'Creating...' : 'Create Task'}
               </button>

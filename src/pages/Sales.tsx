@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { IndianRupee, Plus, Search, Wallet, CreditCard, Smartphone, Calendar } from 'lucide-react';
+import { IndianRupee, Plus, Search, Wallet, CreditCard, Smartphone, Calendar, ClipboardList } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -56,7 +56,38 @@ const Sales = () => {
     return () => { supabase.removeChannel(channel); };
   }, [queryClient]);
 
-  const [form, setForm] = useState({ amount: '', payment_mode: 'cash', description: '', customer_name: '' });
+  // Fetch services
+  const { data: servicesList = [] } = useQuery({
+    queryKey: ['services-list-sales'],
+    queryFn: async () => {
+      const { data } = await supabase.from('services').select('*').eq('is_active', true).order('name');
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
+  // Fetch sub-services
+  const { data: subServicesList = [] } = useQuery({
+    queryKey: ['sub-services-list-sales'],
+    queryFn: async () => {
+      const { data } = await supabase.from('sub_services').select('*').eq('is_active', true).order('name');
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
+  const [form, setForm] = useState({ amount: '', payment_mode: 'cash', description: '', customer_name: '', service_id: '', sub_service_id: '' });
+
+  const filteredSubServices = subServicesList.filter(ss => ss.service_id === form.service_id);
+
+  const handleSubServiceChange = (subServiceId: string) => {
+    const subService = subServicesList.find(ss => ss.id === subServiceId);
+    setForm(f => ({
+      ...f,
+      sub_service_id: subServiceId,
+      amount: subService ? String(subService.price) : f.amount,
+    }));
+  };
 
   const createMutation = useMutation({
     mutationFn: async () => {
@@ -68,13 +99,15 @@ const Sales = () => {
         payment_mode: form.payment_mode,
         description: form.description.trim() || null,
         customer_name: form.customer_name.trim() || null,
+        service_id: form.service_id || null,
+        sub_service_id: form.sub_service_id || null,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sales'] });
       setShowCreate(false);
-      setForm({ amount: '', payment_mode: 'cash', description: '', customer_name: '' });
+      setForm({ amount: '', payment_mode: 'cash', description: '', customer_name: '', service_id: '', sub_service_id: '' });
       toast.success('Sale recorded successfully');
     },
     onError: (e: any) => toast.error(e.message),
@@ -172,6 +205,28 @@ const Sales = () => {
         <DialogContent className="max-w-md">
           <DialogHeader><DialogTitle>Record New Sale</DialogTitle></DialogHeader>
           <form onSubmit={e => { e.preventDefault(); createMutation.mutate(); }} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Service</Label>
+                <Select value={form.service_id} onValueChange={v => setForm(f => ({ ...f, service_id: v, sub_service_id: '' }))}>
+                  <SelectTrigger><SelectValue placeholder="Select service" /></SelectTrigger>
+                  <SelectContent>
+                    {servicesList.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Sub-Service</Label>
+                <Select value={form.sub_service_id} onValueChange={handleSubServiceChange} disabled={!form.service_id}>
+                  <SelectTrigger><SelectValue placeholder={form.service_id ? "Select sub-service" : "Select service first"} /></SelectTrigger>
+                  <SelectContent>
+                    {filteredSubServices.map(ss => (
+                      <SelectItem key={ss.id} value={ss.id}>{ss.name} — ₹{Number(ss.price).toLocaleString('en-IN')}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
             <div><Label>Amount (₹) *</Label><Input required type="number" min="1" step="0.01" value={form.amount} onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} placeholder="0" /></div>
             <div>
               <Label>Payment Mode</Label>

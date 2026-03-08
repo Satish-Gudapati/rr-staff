@@ -47,6 +47,8 @@ export interface Task {
   title: string;
   description: string;
   service_type: string;
+  service_id?: string;
+  sub_service_id?: string;
   priority: 'low' | 'medium' | 'high';
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
   total_amount: number;
@@ -89,6 +91,8 @@ export interface Sale {
   description?: string;
   customer_name?: string;
   task_id?: string;
+  service_id?: string;
+  sub_service_id?: string;
   created_at: string;
   updated_at: string;
   entered_by_profile?: Partial<UserProfile>;
