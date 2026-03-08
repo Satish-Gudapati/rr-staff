@@ -378,6 +378,10 @@ const Attendance = () => {
             <Calendar size={18} /> {isOwner ? 'Team Attendance' : 'Your History'}
           </h2>
           <div className="flex items-center gap-2">
+            <button onClick={exportCSV} title="Export CSV"
+              className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-primary">
+              <Download size={16} />
+            </button>
             <button onClick={() => setSelectedMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1))}
               className="p-2 rounded-lg hover:bg-muted transition-colors">
               <ChevronLeft size={16} />
