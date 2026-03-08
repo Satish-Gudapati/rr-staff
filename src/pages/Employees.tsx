@@ -35,6 +35,8 @@ const Employees = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<EmployeeFormData>({ full_name: '', email: '', password: '', permissions: [], role_id: '', salary: '0', incentives: '0', allowed_devices: ['mobile', 'tablet', 'desktop', 'pos'] });
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [resetPwId, setResetPwId] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState('');
 
   // Fetch employees
   const { data: employees = [], isLoading } = useQuery({
