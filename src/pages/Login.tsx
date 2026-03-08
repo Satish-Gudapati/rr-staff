@@ -4,6 +4,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff, Loader2, UserPlus, LogIn } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { detectDeviceType, DEVICE_LABELS } from '@/lib/deviceDetect';
 
 type AuthMode = 'login' | 'register';
 type RoleTab = 'owner' | 'employee';
