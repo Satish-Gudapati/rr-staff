@@ -75,6 +75,7 @@ serve(async (req) => {
         role_id: role_id || null,
         salary: parseFloat(salary) || 0,
         incentives: parseFloat(incentives) || 0,
+        allowed_devices: allowed_devices || ['mobile', 'tablet', 'desktop', 'pos'],
       }).select().single();
 
       if (profileError) {
