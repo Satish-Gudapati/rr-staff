@@ -283,6 +283,8 @@ export type Database = {
           id: string
           owner_id: string
           payment_mode: string
+          service_id: string | null
+          sub_service_id: string | null
           task_id: string | null
           updated_at: string
         }
@@ -295,6 +297,8 @@ export type Database = {
           id?: string
           owner_id: string
           payment_mode?: string
+          service_id?: string | null
+          sub_service_id?: string | null
           task_id?: string | null
           updated_at?: string
         }
@@ -307,6 +311,8 @@ export type Database = {
           id?: string
           owner_id?: string
           payment_mode?: string
+          service_id?: string | null
+          sub_service_id?: string | null
           task_id?: string | null
           updated_at?: string
         }
@@ -323,6 +329,20 @@ export type Database = {
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_sub_service_id_fkey"
+            columns: ["sub_service_id"]
+            isOneToOne: false
+            referencedRelation: "sub_services"
             referencedColumns: ["id"]
           },
           {
@@ -478,8 +498,10 @@ export type Database = {
           owner_id: string
           payment_status: string
           priority: string
+          service_id: string | null
           service_type: string
           status: string
+          sub_service_id: string | null
           title: string
           total_amount: number | null
           updated_at: string
@@ -496,8 +518,10 @@ export type Database = {
           owner_id: string
           payment_status?: string
           priority?: string
+          service_id?: string | null
           service_type?: string
           status?: string
+          sub_service_id?: string | null
           title: string
           total_amount?: number | null
           updated_at?: string
@@ -514,8 +538,10 @@ export type Database = {
           owner_id?: string
           payment_status?: string
           priority?: string
+          service_id?: string | null
           service_type?: string
           status?: string
+          sub_service_id?: string | null
           title?: string
           total_amount?: number | null
           updated_at?: string
@@ -540,6 +566,20 @@ export type Database = {
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_sub_service_id_fkey"
+            columns: ["sub_service_id"]
+            isOneToOne: false
+            referencedRelation: "sub_services"
             referencedColumns: ["id"]
           },
         ]
