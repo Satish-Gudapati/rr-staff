@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { format, differenceInMinutes, startOfMonth, endOfMonth, parseISO } from 'date-fns';
 import { toast } from 'sonner';
 import {
-  Clock, LogIn, LogOut, Coffee, MapPin, Calendar, User, Loader2, ChevronLeft, ChevronRight, FileText
+  Clock, LogIn, LogOut, Coffee, MapPin, Calendar, User, Loader2, ChevronLeft, ChevronRight, FileText, Download
 } from 'lucide-react';
 import { Attendance as AttendanceType } from '@/types';
 
@@ -244,6 +244,35 @@ const Attendance = () => {
     return `${h}h ${m}m`;
   };
 
+  const exportCSV = () => {
+    if (attendanceHistory.length === 0) {
+      toast.error('No records to export');
+      return;
+    }
+    const headers = ['Date', 'Employee', 'Email', 'Check In', 'Check Out', 'Total Hours', 'Break (min)', 'Status', 'Location', 'Notes'];
+    const rows = attendanceHistory.map((r: any) => [
+      r.date,
+      r.profile?.full_name || user?.full_name || '',
+      r.profile?.email || user?.email || '',
+      r.check_in ? format(parseISO(r.check_in), 'hh:mm a') : '',
+      r.check_out ? format(parseISO(r.check_out), 'hh:mm a') : '',
+      Number(r.total_hours || 0).toFixed(2),
+      String(r.total_break_minutes || 0),
+      r.status,
+      r.location_name || '',
+      (r.notes || '').replace(/,/g, ';'),
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `attendance-${format(selectedMonth, 'yyyy-MM')}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('CSV exported!');
+  };
+
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
@@ -349,6 +378,10 @@ const Attendance = () => {
             <Calendar size={18} /> {isOwner ? 'Team Attendance' : 'Your History'}
           </h2>
           <div className="flex items-center gap-2">
+            <button onClick={exportCSV} title="Export CSV"
+              className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-primary">
+              <Download size={16} />
+            </button>
             <button onClick={() => setSelectedMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1))}
               className="p-2 rounded-lg hover:bg-muted transition-colors">
               <ChevronLeft size={16} />
