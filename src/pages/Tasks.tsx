@@ -54,6 +54,16 @@ const Tasks = () => {
     enabled: !!user,
   });
 
+  // Fetch sub-services for dropdown
+  const { data: subServicesList = [] } = useQuery({
+    queryKey: ['sub-services-list', user?.id],
+    queryFn: async () => {
+      const { data } = await supabase.from('sub_services').select('*').eq('is_active', true).order('name');
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
   // Fetch tasks
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ['tasks', user?.id],
