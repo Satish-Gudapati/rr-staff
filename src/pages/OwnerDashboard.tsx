@@ -1,7 +1,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import MetricCard from '@/components/shared/MetricCard';
 import { motion } from 'framer-motion';
-import { Users, ClipboardList, ArrowRight, IndianRupee, TrendingUp, Gift, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { Users, ClipboardList, ArrowRight, IndianRupee, TrendingUp, Gift, CheckCircle, Clock, AlertCircle, LogIn, Timer, Coffee, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
