@@ -127,12 +127,16 @@ const Tasks = () => {
     mutationFn: async () => {
       const ownerId = isOwner ? user!.id : user!.owner_id!;
       const selectedService = servicesList.find(s => s.id === form.service_id);
+      const selectedSubService = subServicesList.find(ss => ss.id === form.sub_service_id);
+      const title = form.customer_name.trim() + (selectedSubService ? ` — ${selectedSubService.name}` : selectedService ? ` — ${selectedService.name}` : '');
       const { error } = await supabase.from('tasks').insert({
         owner_id: ownerId,
         created_by: user!.id,
         assigned_to: form.assigned_to,
         assigned_at: new Date().toISOString(),
-        title: form.title.trim(),
+        title: title,
+        customer_name: form.customer_name.trim(),
+        customer_phone: form.customer_phone.trim() || null,
         description: form.description.trim(),
         service_type: selectedService?.name || 'General',
         service_id: form.service_id || null,
