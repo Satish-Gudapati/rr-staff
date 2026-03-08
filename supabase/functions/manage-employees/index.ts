@@ -49,7 +49,7 @@ serve(async (req) => {
     const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
 
     if (action === 'create') {
-      const { email, password, full_name, permissions, role_id, salary, incentives } = payload;
+      const { email, password, full_name, permissions, role_id, salary, incentives, allowed_devices } = payload;
 
       // Create auth user
       const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
