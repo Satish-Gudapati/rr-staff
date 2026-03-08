@@ -159,7 +159,7 @@ const Employees = () => {
 
   const handleEdit = (emp: any) => {
     const empPerms = empPermissions.filter((ep: any) => ep.profile_id === emp.id).map((ep: any) => ep.permission_id);
-    setFormData({ full_name: emp.full_name, email: emp.email, password: '', permissions: empPerms, role_id: emp.role_id || '', salary: String(emp.salary || 0), incentives: String(emp.incentives || 0) });
+    setFormData({ full_name: emp.full_name, email: emp.email, password: '', permissions: empPerms, role_id: emp.role_id || '', salary: String(emp.salary || 0), incentives: String(emp.incentives || 0), allowed_devices: emp.allowed_devices || ['mobile', 'tablet', 'desktop', 'pos'] });
     setEditingId(emp.id);
     setShowForm(true);
   };
