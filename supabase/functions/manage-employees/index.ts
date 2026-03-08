@@ -117,6 +117,7 @@ serve(async (req) => {
       if (role_id !== undefined) updates.role_id = role_id || null;
       if (salary !== undefined) updates.salary = parseFloat(salary) || 0;
       if (incentives !== undefined) updates.incentives = parseFloat(incentives) || 0;
+      if (allowed_devices !== undefined) updates.allowed_devices = allowed_devices;
 
       if (Object.keys(updates).length > 0) {
         await supabaseAdmin.from('profiles').update(updates).eq('id', profile_id);
