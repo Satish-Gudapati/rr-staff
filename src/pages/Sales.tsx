@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { IndianRupee, Plus, Search, Wallet, CreditCard, Smartphone, Calendar } from 'lucide-react';
+import { IndianRupee, Plus, Search, Wallet, CreditCard, Smartphone, Calendar, ClipboardList } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
