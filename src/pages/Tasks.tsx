@@ -328,7 +328,7 @@ const Tasks = () => {
             <div><Label>Due Date</Label><Input type="date" value={form.due_date} onChange={e => setForm(f => ({ ...f, due_date: e.target.value }))} /></div>
             <div className="flex justify-end gap-3 pt-2">
               <button type="button" onClick={() => setShowCreate(false)} className="px-4 py-2 rounded-lg text-sm text-muted-foreground hover:bg-muted transition-colors">Cancel</button>
-              <button type="submit" disabled={createMutation.isPending || !form.title || !form.assigned_to || !form.service_type}
+              <button type="submit" disabled={createMutation.isPending || !form.title || !form.assigned_to || !form.service_id}
                 className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50">
                 {createMutation.isPending ? 'Creating...' : 'Create Task'}
               </button>
