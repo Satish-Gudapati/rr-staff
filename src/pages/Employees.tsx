@@ -432,9 +432,29 @@ const Employees = () => {
                     }`}>
                     {emp.is_active ? 'Active' : 'Inactive'}
                   </button>
-                  <button onClick={() => handleEdit(emp)} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+                  <button onClick={() => handleEdit(emp)} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Edit">
                     <Pencil size={15} />
                   </button>
+                  {resetPwId === emp.id ? (
+                    <form onSubmit={(e) => { e.preventDefault(); resetPasswordMutation.mutate({ profileId: emp.id, password: newPassword }); }}
+                      className="flex items-center gap-1">
+                      <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="New password" minLength={6} required autoFocus
+                        className="w-28 px-2 py-1 rounded text-xs bg-muted border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring" />
+                      <button type="submit" disabled={resetPasswordMutation.isPending}
+                        className="px-2 py-1 rounded text-xs font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50">
+                        {resetPasswordMutation.isPending ? '...' : 'Set'}
+                      </button>
+                      <button type="button" onClick={() => { setResetPwId(null); setNewPassword(''); }}
+                        className="px-2 py-1 rounded text-xs font-medium bg-muted text-muted-foreground">
+                        Cancel
+                      </button>
+                    </form>
+                  ) : (
+                    <button onClick={() => { setResetPwId(emp.id); setNewPassword(''); }} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Reset Password">
+                      <KeyRound size={15} />
+                    </button>
+                  )}
                   {deleteConfirm === emp.id ? (
                     <div className="flex items-center gap-1">
                       <button onClick={() => deleteMutation.mutate(emp.id)}
