@@ -14,6 +14,113 @@ export type Database = {
   }
   public: {
     Tables: {
+      attendance: {
+        Row: {
+          check_in: string | null
+          check_out: string | null
+          created_at: string
+          date: string
+          id: string
+          ip_address: string | null
+          location_lat: number | null
+          location_lng: number | null
+          location_name: string | null
+          notes: string | null
+          owner_id: string
+          profile_id: string
+          status: string
+          total_break_minutes: number | null
+          total_hours: number | null
+          updated_at: string
+        }
+        Insert: {
+          check_in?: string | null
+          check_out?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          ip_address?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          location_name?: string | null
+          notes?: string | null
+          owner_id: string
+          profile_id: string
+          status?: string
+          total_break_minutes?: number | null
+          total_hours?: number | null
+          updated_at?: string
+        }
+        Update: {
+          check_in?: string | null
+          check_out?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          ip_address?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          location_name?: string | null
+          notes?: string | null
+          owner_id?: string
+          profile_id?: string
+          status?: string
+          total_break_minutes?: number | null
+          total_hours?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      attendance_breaks: {
+        Row: {
+          attendance_id: string
+          break_end: string | null
+          break_start: string
+          created_at: string
+          duration_minutes: number | null
+          id: string
+        }
+        Insert: {
+          attendance_id: string
+          break_end?: string | null
+          break_start?: string
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+        }
+        Update: {
+          attendance_id?: string
+          break_end?: string | null
+          break_start?: string
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_breaks_attendance_id_fkey"
+            columns: ["attendance_id"]
+            isOneToOne: false
+            referencedRelation: "attendance"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employee_permissions: {
         Row: {
           created_at: string
