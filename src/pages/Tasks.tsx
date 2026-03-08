@@ -101,7 +101,7 @@ const Tasks = () => {
 
   // Create task
   const [form, setForm] = useState({
-    title: '', description: '', service_id: '', sub_service_id: '',
+    customer_name: '', customer_phone: '', description: '', service_id: '', sub_service_id: '',
     assigned_to: '',
     priority: 'medium' as Task['priority'],
     total_amount: '', payment_status: 'unpaid' as Task['payment_status'],
