@@ -71,6 +71,11 @@ const OwnerDashboard = () => {
   const completedTasks = tasks.filter(t => t.status === 'completed').length;
   const inProgressTasks = tasks.filter(t => t.status === 'in_progress').length;
 
+  const checkedInCount = todayAttendance.filter((a: any) => a.status === 'checked_in' || a.status === 'on_break').length;
+  const checkedOutCount = todayAttendance.filter((a: any) => a.status === 'checked_out').length;
+  const onBreakCount = todayAttendance.filter((a: any) => a.status === 'on_break').length;
+  const totalHoursToday = todayAttendance.reduce((sum: number, a: any) => sum + Number(a.total_hours || 0), 0);
+
   const fmt = (v: number) => `₹${v.toLocaleString('en-IN')}`;
 
   // Daily sales chart data (last 7 days)
