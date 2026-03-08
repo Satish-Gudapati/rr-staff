@@ -50,6 +50,7 @@ const AppSidebar = () => {
       ? [{ label: 'Incentives', icon: <Gift size={20} />, path: '/incentives' }]
       : []),
     { label: 'Services', icon: <Briefcase size={20} />, path: '/services' },
+    { label: 'Attendance', icon: <Clock size={20} />, path: '/attendance' },
     ...(hasPermission('can_view_reports')
       ? [{ label: 'Reports', icon: <BarChart3 size={20} />, path: '/reports' }]
       : []),
