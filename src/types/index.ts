@@ -111,3 +111,33 @@ export interface Incentive {
   created_at: string;
   employee_profile?: UserProfile;
 }
+
+export interface Attendance {
+  id: string;
+  profile_id: string;
+  owner_id: string;
+  date: string;
+  check_in?: string;
+  check_out?: string;
+  total_hours: number;
+  total_break_minutes: number;
+  ip_address?: string;
+  location_lat?: number;
+  location_lng?: number;
+  location_name?: string;
+  notes?: string;
+  status: 'checked_in' | 'on_break' | 'checked_out';
+  created_at: string;
+  updated_at: string;
+  profile?: Partial<UserProfile>;
+  breaks?: AttendanceBreak[];
+}
+
+export interface AttendanceBreak {
+  id: string;
+  attendance_id: string;
+  break_start: string;
+  break_end?: string;
+  duration_minutes: number;
+  created_at: string;
+}
