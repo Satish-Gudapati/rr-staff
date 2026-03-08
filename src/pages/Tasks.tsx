@@ -269,7 +269,10 @@ const Tasks = () => {
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>Create New Task</DialogTitle></DialogHeader>
           <form onSubmit={e => { e.preventDefault(); createMutation.mutate(); }} className="space-y-4">
-            <div><Label>Title *</Label><Input required value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Task title" /></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>Customer Name *</Label><Input required value={form.customer_name} onChange={e => setForm(f => ({ ...f, customer_name: e.target.value }))} placeholder="Customer name" maxLength={100} /></div>
+              <div><Label>Phone Number</Label><Input value={form.customer_phone} onChange={e => setForm(f => ({ ...f, customer_phone: e.target.value }))} placeholder="Phone number" maxLength={15} type="tel" /></div>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Service *</Label>
