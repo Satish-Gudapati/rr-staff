@@ -137,6 +137,24 @@ const Employees = () => {
     onError: (err: Error) => toast.error(err.message),
   });
 
+  // Reset password
+  const resetPasswordMutation = useMutation({
+    mutationFn: async ({ profileId, password }: { profileId: string; password: string }) => {
+      const { data: result, error } = await supabase.functions.invoke('manage-employees', {
+        body: { action: 'reset_password', profile_id: profileId, new_password: password },
+      });
+      if (error) throw error;
+      if (result?.error) throw new Error(result.error);
+      return result;
+    },
+    onSuccess: () => {
+      toast.success('Password changed successfully');
+      setResetPwId(null);
+      setNewPassword('');
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
   // Toggle active status
   const toggleActiveMutation = useMutation({
     mutationFn: async ({ profileId, isActive }: { profileId: string; isActive: boolean }) => {
