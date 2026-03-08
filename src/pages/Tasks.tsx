@@ -101,11 +101,27 @@ const Tasks = () => {
 
   // Create task
   const [form, setForm] = useState({
-    title: '', description: '', service_type: '', assigned_to: '',
+    title: '', description: '', service_id: '', sub_service_id: '',
+    assigned_to: '',
     priority: 'medium' as Task['priority'],
     total_amount: '', payment_status: 'unpaid' as Task['payment_status'],
     due_date: '',
   });
+
+  // Filter sub-services based on selected service
+  const filteredSubServices = subServicesList.filter(
+    ss => ss.service_id === form.service_id
+  );
+
+  // Auto-fill amount when sub-service is selected
+  const handleSubServiceChange = (subServiceId: string) => {
+    const subService = subServicesList.find(ss => ss.id === subServiceId);
+    setForm(f => ({
+      ...f,
+      sub_service_id: subServiceId,
+      total_amount: subService ? String(subService.price) : f.total_amount,
+    }));
+  };
 
   const createMutation = useMutation({
     mutationFn: async () => {
