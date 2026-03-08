@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { format, differenceInMinutes, startOfMonth, endOfMonth, parseISO } from 'date-fns';
 import { toast } from 'sonner';
 import {
-  Clock, LogIn, LogOut, Coffee, MapPin, Calendar, User, Loader2, ChevronLeft, ChevronRight, FileText
+  Clock, LogIn, LogOut, Coffee, MapPin, Calendar, User, Loader2, ChevronLeft, ChevronRight, FileText, Download
 } from 'lucide-react';
 import { Attendance as AttendanceType } from '@/types';
 
