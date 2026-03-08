@@ -154,7 +154,7 @@ const Employees = () => {
   const resetForm = () => {
     setShowForm(false);
     setEditingId(null);
-    setFormData({ full_name: '', email: '', password: '', permissions: [], role_id: '', salary: '0', incentives: '0' });
+    setFormData({ full_name: '', email: '', password: '', permissions: [], role_id: '', salary: '0', incentives: '0', allowed_devices: ['mobile', 'tablet', 'desktop', 'pos'] });
   };
 
   const handleEdit = (emp: any) => {
