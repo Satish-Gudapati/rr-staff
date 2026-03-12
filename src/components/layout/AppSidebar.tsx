@@ -52,6 +52,9 @@ const AppSidebar = () => {
       : []),
     { label: 'Services', icon: <Briefcase size={20} />, path: '/services' },
     { label: 'Attendance', icon: <Clock size={20} />, path: '/attendance' },
+    ...(isOwner
+      ? [{ label: 'Plans', icon: <Crown size={20} />, path: '/plans' }]
+      : []),
     ...(hasPermission('can_view_reports')
       ? [{ label: 'Reports', icon: <BarChart3 size={20} />, path: '/reports' }]
       : []),
