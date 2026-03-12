@@ -17,6 +17,7 @@ import Sales from "./pages/Sales";
 import Incentives from "./pages/Incentives";
 import Services from "./pages/Services";
 import Attendance from "./pages/Attendance";
+import Plans from "./pages/Plans";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
