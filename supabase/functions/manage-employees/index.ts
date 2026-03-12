@@ -51,6 +51,17 @@ serve(async (req) => {
     if (action === 'create') {
       const { email, password, full_name, permissions, role_id, salary, incentives, allowed_devices } = payload;
 
+      // Check plan employee limit
+      const { data: plan } = await supabaseAdmin.from('owner_plans').select('*').eq('owner_id', callerProfile.id).single();
+      if (plan) {
+        const { count } = await supabaseAdmin.from('profiles').select('*', { count: 'exact', head: true }).eq('owner_id', callerProfile.id).eq('role', 'employee');
+        if ((count || 0) >= plan.max_employees) {
+          return new Response(JSON.stringify({ error: `Your ${plan.plan} plan allows a maximum of ${plan.max_employees} employees. Please upgrade to add more.` }), {
+            status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+      }
+
       // Create auth user
       const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
         email,

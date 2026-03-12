@@ -135,10 +135,21 @@ const Attendance = () => {
   // Check In mutation
   const checkInMutation = useMutation({
     mutationFn: async () => {
-      const { ip, lat, lng, locationName } = await getLocationAndIP();
+      let ip = '';
+      let lat: number | undefined;
+      let lng: number | undefined;
+      let locationName = '';
 
-      if (lat === undefined || lng === undefined) {
-        throw new Error('Location access is required to check in. Please enable location permissions and try again.');
+      if (locationRequired) {
+        const locData = await getLocationAndIP();
+        ip = locData.ip;
+        lat = locData.lat;
+        lng = locData.lng;
+        locationName = locData.locationName;
+
+        if (lat === undefined || lng === undefined) {
+          throw new Error('Location access is required to check in. Please enable location permissions and try again.');
+        }
       }
       
       // Find owner_id for this employee
