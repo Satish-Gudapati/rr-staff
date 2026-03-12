@@ -222,6 +222,47 @@ export type Database = {
           },
         ]
       }
+      owner_plans: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          location_attendance: boolean
+          max_employees: number
+          owner_id: string
+          plan: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: string
+          location_attendance?: boolean
+          max_employees?: number
+          owner_id: string
+          plan?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          location_attendance?: boolean
+          max_employees?: number
+          owner_id?: string
+          plan?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "owner_plans_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       permissions: {
         Row: {
           created_at: string
