@@ -18,6 +18,23 @@ const Attendance = () => {
   const [notes, setNotes] = useState('');
   const [showNotesModal, setShowNotesModal] = useState(false);
 
+  // Get owner's plan to check if location is required
+  const ownerId = isOwner ? user?.id : user?.owner_id;
+  const { data: ownerPlan } = useQuery({
+    queryKey: ['owner-plan', ownerId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('owner_plans')
+        .select('*')
+        .eq('owner_id', ownerId!)
+        .single();
+      return data;
+    },
+    enabled: !!ownerId,
+  });
+
+  const locationRequired = ownerPlan?.location_attendance ?? false;
+
   // Get today's attendance record
   const today = format(new Date(), 'yyyy-MM-dd');
   const { data: todayAttendance, isLoading: loadingToday } = useQuery({
