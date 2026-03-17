@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { UserProfile, Permission } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -17,39 +17,51 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const loadingSettled = useRef(false);
 
   const fetchProfile = useCallback(async (userId: string): Promise<UserProfile | null> => {
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-
-    if (error || !profile) return null;
-
-    // Fetch permissions
-    const { data: empPerms } = await supabase
-      .from('employee_permissions')
-      .select('permission_id')
-      .eq('profile_id', profile.id);
-
-    let permissions: Permission[] = [];
-    if (empPerms && empPerms.length > 0) {
-      const permIds = empPerms.map(ep => ep.permission_id);
-      const { data: perms } = await supabase
-        .from('permissions')
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
         .select('*')
-        .in('id', permIds);
-      permissions = (perms || []) as Permission[];
-    }
+        .eq('user_id', userId)
+        .single();
 
-    // Owners have all permissions implicitly
-    if (profile.role === 'owner') {
-      const { data: allPerms } = await supabase.from('permissions').select('*');
-      permissions = (allPerms || []) as Permission[];
-    }
+      if (error || !profile) return null;
 
-    return { ...profile, permissions } as UserProfile;
+      // Fetch permissions
+      const { data: empPerms } = await supabase
+        .from('employee_permissions')
+        .select('permission_id')
+        .eq('profile_id', profile.id);
+
+      let permissions: Permission[] = [];
+      if (empPerms && empPerms.length > 0) {
+        const permIds = empPerms.map(ep => ep.permission_id);
+        const { data: perms } = await supabase
+          .from('permissions')
+          .select('*')
+          .in('id', permIds);
+        permissions = (perms || []) as Permission[];
+      }
+
+      // Owners have all permissions implicitly
+      if (profile.role === 'owner') {
+        const { data: allPerms } = await supabase.from('permissions').select('*');
+        permissions = (allPerms || []) as Permission[];
+      }
+
+      return { ...profile, permissions } as UserProfile;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const settleLoading = useCallback(() => {
+    if (!loadingSettled.current) {
+      loadingSettled.current = true;
+      setIsLoading(false);
+    }
   }, []);
 
   const refreshProfile = useCallback(async () => {
@@ -61,28 +73,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [fetchProfile]);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    loadingSettled.current = false;
+
+    // Safety timeout: if nothing resolves in 5 seconds, stop spinning
+    const timeout = setTimeout(() => {
+      settleLoading();
+    }, 5000);
+
+    // Step 1: Call getSession() FIRST to immediately read from localStorage
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
         const profile = await fetchProfile(session.user.id);
         setUser(profile);
       } else {
         setUser(null);
       }
-      setIsLoading(false);
+      settleLoading();
+      clearTimeout(timeout);
+    }).catch(() => {
+      setUser(null);
+      settleLoading();
+      clearTimeout(timeout);
     });
 
-    // THEN check initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    // Step 2: Set up onAuthStateChange AFTER getSession to keep user in sync
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
         const profile = await fetchProfile(session.user.id);
         setUser(profile);
+      } else {
+        setUser(null);
       }
-      setIsLoading(false);
+
+      // Also settle loading on INITIAL_SESSION event
+      if (event === 'INITIAL_SESSION') {
+        settleLoading();
+        clearTimeout(timeout);
+      }
     });
 
-    return () => subscription.unsubscribe();
-  }, [fetchProfile]);
+    return () => {
+      clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
+  }, [fetchProfile, settleLoading]);
 
   const login = useCallback(async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
