@@ -14,6 +14,7 @@ const AppLayout = () => {
     );
   }
 
+  // When loading is done and user is not authenticated, redirect to login
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
   }
