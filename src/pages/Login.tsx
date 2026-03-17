@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -24,11 +24,12 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Redirect if already logged in
-  if (!isLoading && isAuthenticated && user) {
-    navigate(user.role === 'owner' ? '/owner-dashboard' : '/dashboard', { replace: true });
-    return null;
-  }
+  // Redirect once auth resolves and user is available
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user) {
+      navigate(user.role === 'owner' ? '/owner-dashboard' : '/dashboard', { replace: true });
+    }
+  }, [isLoading, isAuthenticated, user, navigate]);
 
   const handleTabSwitch = (role: RoleTab) => {
     setActiveTab(role);
@@ -67,8 +68,11 @@ const Login = () => {
         const result = await login(email, password);
         if (!result.success) {
           setError(result.error || 'Invalid credentials.');
-        } else {
-          // Check device restriction for employees
+          return;
+        }
+
+        // Device restriction check for employees
+        try {
           const currentDevice = detectDeviceType();
           const { data: { user: authUser } } = await supabase.auth.getUser();
           if (authUser) {
@@ -83,12 +87,15 @@ const Login = () => {
               if (!allowed.includes(currentDevice)) {
                 await supabase.auth.signOut();
                 setError(`Access denied. You are not allowed to login from a ${DEVICE_LABELS[currentDevice]}. Please contact your owner.`);
-                setLoading(false);
                 return;
               }
             }
           }
+        } catch {
+          // Device check failed non-critically — allow login to proceed
         }
+
+        // Navigation is handled by the useEffect watching isAuthenticated
       }
     } catch {
       setError('Something went wrong. Please try again.');
